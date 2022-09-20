@@ -24,7 +24,7 @@ class Compair:
         pass
 
     @staticmethod
-    def similar_postid(vec):
+    def similar_postid(vec, K=5):
         # a = []
 
         # getting the timestamp
@@ -52,4 +52,4 @@ class Compair:
         # a.append(str(ts5 - ts4))
         # ts6 = datetime.now()
         # a.append(str(ts6 - ts5))
-        return list(pd.DataFrame(sim, columns=keys).T.sort_values(by=0, ascending=False).head(5).index)
+        return list(pd.DataFrame(sim, columns=keys).T.sort_values(by=0, ascending=False).head(K).index)

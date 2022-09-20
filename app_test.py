@@ -5,6 +5,7 @@ from starlette.responses import FileResponse
 import requests
 import numpy as np
 from selenium import webdriver
+from PIL import Image
 
 PATH = "C:\chromedriver.exe"
 app = FastAPI()
@@ -18,22 +19,31 @@ async def upload_file(file: UploadFile = File(...)):
     c = np.array(vec.json(), dtype=np.float32)
     # my_dict = {"similar_posts": sp.similar_postid(a)}
     # return my_dict
-    driver = webdriver.Chrome(PATH)
-    hel = {}
-    b = sp.similar_postid(c)
-    for j, i in enumerate(b):
-        driver.get(f"https://www.kukala.ir/product/{i}")
-        a = input("Would you like to save it? ")
-        if a == 'y':
-            hel[i] = input("your comments: ")
-        if a == 'break':
-            break
-        if a == "undo":
-            driver.get(f"https://www.kukala.ir/product/{b[j - 1]}")
-            c = input("Would you like to save it? ")
-            if c == 'y':
-                hel[b[j - 1]] = input("your comments: ")
-    return {"bugs": hel}
+    # driver = webdriver.Chrome(PATH)
+    # hel = {}
+    b = sp.similar_postid(c, 500)
+
+    with open("amin.txt", "rb") as a:
+        URLs = a.readlines()
+    for i, u in enumerate(URLs):
+        respose = requests.get(f"https://api.kukala.ir/product/images/GetImage/{u.strip().decode()}.jpg", verify= False)
+        image = Image.open(respose.content)
+        image.save(f"nudedata/a_{i}.jpg")
+
+        print("hello")
+    # for j, i in enumerate(b):
+    #     driver.get(f"https://www.kukala.ir/product/{i}")
+    #     a = input("Would you like to save it? ")
+    #     if a == 'y':
+    #         hel[i] = input("your comments: ")
+    #     if a == 'break':
+    #         break
+    #     if a == "undo":
+    #         driver.get(f"https://www.kukala.ir/product/{b[j - 1]}")
+    #         c = input("Would you like to save it? ")
+    #         if c == 'y':
+    #             hel[b[j - 1]] = input("your comments: ")
+    # return {"bugs": hel}
 
 
 @app.get("/")

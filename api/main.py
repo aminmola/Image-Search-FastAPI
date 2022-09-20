@@ -14,7 +14,7 @@ async def upload_file(file: UploadFile = File(...)):
     vec = requests.request("POST", "http://127.0.0.1:4050/", headers={}, data={},
                            files=[('file', (file.filename, file.file, 'image/jpeg'))])
     a = np.array(vec.json(), dtype=np.float32)
-    my_dict = {"similar_posts": sp.similar_postid(a)}
+    my_dict = {"similar_posts": sp.similar_postid(a, 500)}
     return my_dict
 
 
