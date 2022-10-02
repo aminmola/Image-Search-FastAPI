@@ -41,8 +41,7 @@ def maximum(vecs: dict):
 
 
 def task():
-    # m = maximum(vectors)
-    m = 7897000
+    m = maximum(vectors)
     query = {"PostId": {'$gt': m}}
     feature_docs = features_model.collection.find(query)
     for vec in feature_docs:
