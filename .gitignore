@@ -148,3 +148,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 static/uploads/*
 components/*
+nudedata
+test_hamed.py
+mamad.py
+amin.txt
+sara_test.py
