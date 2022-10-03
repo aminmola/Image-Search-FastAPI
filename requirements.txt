@@ -5,3 +5,5 @@ fastapi~=0.81.0
 starlette==0.19.1
 python-multipart
 requests~=2.28.1
+pymongo~=4.2.0
+python-dotenv==0.20.0

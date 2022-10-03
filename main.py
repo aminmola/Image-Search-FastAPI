@@ -1,4 +1,4 @@
-from compair import similar_postid
+from api.compair import similar_postid
 import uvicorn
 from fastapi import FastAPI, File, UploadFile
 from starlette.responses import FileResponse
