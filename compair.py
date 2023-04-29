@@ -52,3 +52,16 @@ thread.start()
 
 def similar_postid(vec, k=5):
     return [keys[i] for i in knn.kneighbors(np.expand_dims(vec, 0))[1][0][:k]]
+
+
+def similar_postid_exact(vec, k=50):
+    a = knn.kneighbors(np.expand_dims(vec, 0))
+    exact_similar_postid = []
+    for m in range(k):
+        if a[0][0][m] < 0.01:
+            exact_similar_postid.append(keys[a[1][0][m]])
+        else:
+            break
+    return {"exact_similar_postid": exact_similar_postid,
+            "rest_of_similar_postid": [keys[i] for i in knn.kneighbors(np.expand_dims(vec, 0))[1][0][m:k]]
+            }
