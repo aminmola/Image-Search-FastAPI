@@ -1,4 +1,4 @@
-import compair
+from compair import similar_postid
 import uvicorn
 from fastapi import FastAPI, File, UploadFile
 from starlette.responses import FileResponse
@@ -6,30 +6,25 @@ import requests
 import numpy as np
 
 app = FastAPI()
-find_similar = compair.FindSimilar()
+
+
+# sp = Compair()
 
 
 @app.post("/")
-async def upload_file(file: UploadFile = File(...), postid_count: int = 5):
+async def upload_file(postid_count: int = 5, file: UploadFile = File(...)):
+    # params = {"postid_count": n }
+
     a = requests.request("POST", "http://192.168.110.45:4050/", headers={}, data={},
                          files=[('file', (file.filename, file.file, 'image/jpeg'))])
     vec = np.array(a.json(), dtype=np.float32)
-    my_dict = {"similar_posts": find_similar.similar_postid(vec, postid_count)}
-    return my_dict
-
-
-@app.post("/find_exact_similar")
-async def upload_file(file: UploadFile = File(...), postid_count: int = 5):
-    a = requests.request("POST", "http://192.168.110.45:4050/", headers={}, data={},
-                         files=[('file', (file.filename, file.file, 'image/jpeg'))])
-    vec = np.array(a.json(), dtype=np.float32)
-    my_dict = {"similar_posts": find_similar.similar_postid_exact(vec, postid_count)}
+    my_dict = {"similar_posts": similar_postid(vec, postid_count)}
     return my_dict
 
 
 @app.get("/")
 async def read_index():
-    return FileResponse('index.html')
+    return FileResponse('api/index.html')
 
 
 if __name__ == "__main__":

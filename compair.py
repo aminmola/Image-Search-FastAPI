@@ -1,8 +1,25 @@
 import numpy as np
+import pandas as pd
 from utils.mongo import Mongo
 import time
 import threading
-from sklearn.neighbors import NearestNeighbors
+
+# with open("/Ezshop/IDAS/components/features2.pkl", "rb") as f:
+#     allVectors = pickle.load(f)
+##############################################################################
+# with open("/home/ezshop/components/features.pkl", "rb") as f:
+#     allVectors1 = pickle.load(f)
+# with open("/home/ezshop/components/features1.pkl", "rb") as f:
+#     allVectors2 = pickle.load(f)
+##############################################################################
+# with open("components/features.pkl", "rb") as f:
+#     allVectors1 = pickle.load(f)
+# with open("components/features1.pkl", "rb") as f:
+#     allVectors2 = pickle.load(f)
+# allVectors = {**allVectors1, **allVectors2}
+
+
+vectors = {}
 
 
 class FeatureModel(Mongo):
@@ -14,52 +31,69 @@ class FeatureModel(Mongo):
 features_model = FeatureModel()
 
 
-# def maximum(vecs: dict):
-#     if vecs == {}:
-#         mx = 10680000
-#     else:
-#         mx = max(vecs.keys())
-#     return mx
+def maximum(vecs: dict):
+    if vecs == {}:
+        mx = 9000000
+    else:
+        mx = max(vecs.keys())
+    return mx
 
 
-class FindSimilar():
-    def __init__(self, ):
-        self.keys = []
-        self.knn = NearestNeighbors(n_neighbors=50, metric="cosine")
-        self.thread = threading.Thread(target=self.schedule)
-        self.thread.start()
-        self.vectors = {}
+def task():
+    m = maximum(vectors)
+    query = {"PostId": {'$gt': m}}
+    feature_docs = features_model.collection.find(query).limit(200000)
+    for vec in feature_docs:
+        vectors[vec['PostId']] = np.array(vec['Feature'], dtype=np.float32)
+    global v
+    v = np.array(list(vectors.values())).T
+    global keys
+    keys = list(vectors.keys())
 
-    def schedule(self):
-        while 1:
-            self.update()
-            time.sleep(72000)
 
-    def update(self):
-        if self.keys:
-            max_postId = max(self.keys)
-        else:
-            max_postId = 9000000
-        # m = maximum(vectors)
-        query = {"PostId": {'$gt': max_postId}}
-        feature_docs = features_model.collection.find(query)
-        for vec in feature_docs:
-            self.vectors[vec['PostId']] = np.array(vec['Feature'], dtype=np.float32)
-        v = np.array(list(self.vectors.values())).T
-        self.knn.fit(v.T)
-        self.keys = list(self.vectors.keys())
+def schedule():
+    while 1:
+        task()
+        time.sleep(400)
 
-    def similar_postid(self, vec, k=5):
-        return [self.keys[i] for i in self.knn.kneighbors(np.expand_dims(vec, 0))[1][0][:k]]
 
-    def similar_postid_exact(self, vec, k=50):
-        a = self.knn.kneighbors(np.expand_dims(vec, 0))
-        exact_similar_postid = []
-        for m in range(k):
-            if a[0][0][m] < 0.01:
-                exact_similar_postid.append(self.keys[a[1][0][m]])
-            else:
-                break
-        return {"exact_similar_postid": exact_similar_postid,
-                "rest_of_similar_postid": [self.keys[i] for i in self.knn.kneighbors(np.expand_dims(vec, 0))[1][0][m:k]]
-                }
+# makes our logic non blocking
+
+thread = threading.Thread(target=schedule)
+thread.start()
+
+
+# class Compair:
+#     def __init__(self):
+#         pass
+
+def similar_postid(vec, k=5):
+    # a = []
+
+    # getting the timestamp
+    # dt = datetime.now()
+
+    ####transformationForCNNInput = transforms.Compose([transforms.Resize((224, 224))])
+    ####I = Image.open(file)
+
+    # ts1 = datetime.now()
+    # a.append(str(ts1 - dt))
+
+    ####newI = transformationForCNNInput(I)
+    # ts2 = datetime.now()
+    # a.append(str(ts2 - ts1))
+    ####vec = img2vec.get_vec(newI)
+    # ts3 = datetime.now()
+    # a.append(str(ts3 - ts2))
+    # vec = np.array(vec)
+    sim = np.inner(vec.T, v.T) / (
+            (np.linalg.norm(vec, axis=0).reshape(-1, 1)) *
+            (np.linalg.norm(v, axis=0).reshape(-1, 1)).T)
+    # ts4 = datetime.now()
+    # a.append(str(ts4 - ts3))
+    # matrix = pd.DataFrame(sim, columns=keys).T
+    # ts5 = datetime.now()
+    # a.append(str(ts5 - ts4))
+    # ts6 = datetime.now()
+    # a.append(str(ts6 - ts5))
+    return list(pd.DataFrame(sim, columns=keys).T.sort_values(by=0, ascending=False).head(k).index)
