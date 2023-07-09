@@ -77,6 +77,10 @@ class Logger(object):
                         "SERVICE": self._app_name
                     }
                 }
+                if 'status' in kwargs:
+                    doc["event"]['status'] = kwargs['status']
+                if 'origin' in kwargs:
+                    doc["event"]['origin'] = kwargs['origin']
                 if cfg.LOGGER_TYPE == "persist":
                     response = requests.request("POST", self.url,
                                                 headers=self.headers,
