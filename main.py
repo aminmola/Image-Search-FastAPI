@@ -4,22 +4,28 @@ from fastapi import FastAPI, File, UploadFile
 from starlette.responses import FileResponse
 import requests
 import numpy as np
+from utils.logger import Logger
 
 app = FastAPI()
+
+log = Logger("ImageSearch")
 
 
 # sp = Compair()
 
 
 @app.post("/")
-async def upload_file(postid_count: int = 5, file: UploadFile = File(...)):
+async def upload_file(postid_count: int = 5, file: UploadFile = File(...), source: str = "kukala"):
     # params = {"postid_count": n }
-
-    a = requests.request("POST", "http://192.168.110.45:4050/", headers={}, data={},
-                         files=[('file', (file.filename, file.file, 'image/jpeg'))])
-    vec = np.array(a.json(), dtype=np.float32)
-    my_dict = {"similar_posts": similar_postid(vec, postid_count)}
-    return my_dict
+    try :
+        a = requests.request("POST", "http://192.168.110.45:4050/", headers={}, data={},
+                             files=[('file', (file.filename, file.file, 'image/jpeg'))])
+        vec = np.array(a.json(), dtype=np.float32)
+        my_dict = {"similar_posts": similar_postid(vec, postid_count)}
+        log.info(f"Request sent By {source}")
+        return my_dict
+    except:
+        log.info(f"Request failed By {source}")
 
 
 @app.get("/")
