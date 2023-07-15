@@ -22,10 +22,10 @@ async def upload_file(postid_count: int = 5, file: UploadFile = File(...), sourc
                              files=[('file', (file.filename, file.file, 'image/jpeg'))])
         vec = np.array(a.json(), dtype=np.float32)
         my_dict = {"similar_posts": similar_postid(vec, postid_count)}
-        log.info(f"Request sent By {source}", status="failed", origin=source)
-        return my_dict
+        log.info(f"Request sent By {source}", status="succeed", origin=source)
     except:
         log.info(f"Request sent By {source}", status="failed", origin=source)
+    return my_dict
 
 
 @app.get("/")

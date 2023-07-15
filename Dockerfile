@@ -24,19 +24,20 @@
 
 
 #
-FROM python:3.9-slim-buster
+FROM 192.168.110.45:5000/python:customized as python
 
 #
 WORKDIR /code
 
 
 RUN apt-get update
-#
 
 COPY ./requirements.txt /code/requirements.txt
 
+from python as runner
+
 #
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
+RUN pip install --upgrade -r /code/requirements.txt
 
 #
 COPY ./ /code/

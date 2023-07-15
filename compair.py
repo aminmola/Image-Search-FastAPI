@@ -18,7 +18,7 @@ features_model = FeatureModel()
 
 def maximum(vecs: dict):
     if vecs == {}:
-        mx = 9000000
+        mx = 9600000
     else:
         mx = max(vecs.keys())
     return mx
