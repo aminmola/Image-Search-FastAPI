@@ -11,6 +11,17 @@ def row2dict(row):
         d[column.name] = str(getattr(row, column.name))
     return d
 
+def kukala_image_path_resolve(im_path):
+    path_list = im_path.split('/') 
+    out = path_list[-2] + '/' + path_list[-1]
+    return out
+
+def get_images_from_server(image_path):
+    new_image_path = root_path + '/components/' + image_path.split('/')[-1]
+    cmd = f"scp -r production-server:{image_path} {new_image_path}"
+    os.system(cmd)
+    return new_image_path
+
 
 def datetime_formatter(date_time: str or datetime, date_format: str = "%Y-%m-%d %H:%M:%S") -> datetime:
     if type(date_time) is str:

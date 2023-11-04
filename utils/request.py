@@ -1,9 +1,19 @@
 import requests
 import random
 import time
-# import cv2
 import numpy as np 
 import io 
+import sys
+import os
+
+root_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, root_path)
+
+import utils.config as cfg
+from utils.logger import Logger
+
+log = Logger('search')
+
 
 class Request:
     user_agent_list = [
@@ -39,25 +49,27 @@ class Request:
         #     'https': 'socks5h://127.0.0.1:9050'
         # }
         self.session = requests.session()
-        self.session.proxies = {
-            'http': 'socks5h://127.0.0.1:9050',
-            'https': 'socks5h://127.0.0.1:9050'
-        }
-        self.user_agent = self.random_user_agent()
+        # self.session.proxies = {
+        #     'http': 'socks5h://127.0.0.1:9050',
+        #     'https': 'socks5h://127.0.0.1:9050'
+        # }
+        # self.user_agent = self.random_user_agent()
 
-    def tor_image_getter(self,src):
-        session = requests.session()
-        session.proxies = {'all': None}
-        session.proxies['http'] = 'socks5h://localhost:9050'
-        session.proxies['https'] = 'socks5h://localhost:9050'
-        image_response = session.get(src, timeout=20)
-        if image_response.status_code == 200:
-            image_bytes = image_response.content
-            raw_img = io.BytesIO(image_bytes)
-            # raw_img_size = raw_img.getbuffer().nbytes
-            return raw_img 
+
+    def get_kukala_product_image(src):
+        # url = "http://192.168.110.45:5200/product/images/GetImage/2023-11-04/3228019768045198323_1.jpg"
+        url = f"http://192.168.110.45:5200/product/images/GetImage/{src}"
+        payload = {}
+        headers = {}
+        response = requests.request("GET", url, headers=headers, data=payload)
+        if response.status_code == 200:
+            image_data = response.content
         else:
-            return None 
+            log.error('image not found! ')
+            image_data = None
+        return image_data
+    
+    
 
     def tor_get_request(self, url, params=None, headers=None):
         if headers is None:

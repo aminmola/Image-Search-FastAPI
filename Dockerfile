@@ -24,7 +24,7 @@
 
 
 #
-FROM 192.168.110.45:5000/python:customized as python
+FROM repo.kukala.ir/ai/python:customized as python
 
 #
 WORKDIR /code
